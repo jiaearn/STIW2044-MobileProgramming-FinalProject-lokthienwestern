@@ -1,16 +1,19 @@
-# lokthienwestern
+## Student Info:
 
-A new Flutter project.
+  NAME: TAN JIA EARN
 
-## Getting Started
+  MATRIC NUMBER: 269509
 
-This project is a starting point for a Flutter application.
+  ![photo1](https://github.com/jiaearn/lokthienwestern/blob/master/assets/images/earn.JPG)
 
-A few resources to get you started if this is your first Flutter project:
+## Introduction:
 
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
+   For this Flutter mobile application is the individual lab 2 of STIW2044: Mobile Programming(A202), in this lab2 we need to develop an application to help small-time business grow their business.​The small-time business I chose is Lok Thien Western, which is a food stall selling Western food.
 
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Link to Youtube Presentation
+
+Youtube Link: https://youtu.be/ld6RKvrWn3M
+
+## Link to Github
+
+Github Link: https://github.com/jiaearn/lokthienwestern
