@@ -2,7 +2,7 @@ import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:lokthienwestern/view/admin/mainscreen.dart';
+import 'package:lokthienwestern/view/admin/adminmainscreen.dart';
 import 'package:lokthienwestern/view/user/mainscreen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;

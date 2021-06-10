@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:lokthienwestern/view/admin/homescreen.dart';
+import 'package:lokthienwestern/view/admin/adminhomescreen.dart';
 import 'package:lokthienwestern/view/admin/newproduct.dart';
 import 'package:lokthienwestern/view/user/settingscreen.dart';
 import 'package:lokthienwestern/widget/appbar.dart';
