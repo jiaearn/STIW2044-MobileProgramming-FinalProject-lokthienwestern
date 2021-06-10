@@ -152,7 +152,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   }
 
   void _alreadyRegister() {
-    Navigator.push(
+    Navigator.pushReplacement(
         context, MaterialPageRoute(builder: (content) => LoginScreen()));
   }
 
@@ -279,7 +279,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
               "Registration Success. Please check your email for verification link.",
           toastLength: Toast.LENGTH_SHORT,
         );
-        Navigator.push(
+        Navigator.pushReplacement(
             context, MaterialPageRoute(builder: (content) => LoginScreen()));
       } else if (response.body == "Email Already Exists.") {
         Fluttertoast.showToast(

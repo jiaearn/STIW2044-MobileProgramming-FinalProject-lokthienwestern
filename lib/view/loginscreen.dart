@@ -2,10 +2,10 @@ import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:lokthienwestern/view/admin/mainscreen.dart';
+import 'package:lokthienwestern/view/user/mainscreen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
-
-import 'mainscreen.dart';
 import 'registrationscreen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -154,9 +154,14 @@ class _LoginScreenState extends State<LoginScreen> {
             "password": _password
           }).then((response) {
         if (response.body == "Success") {
-          Navigator.push(
+          Navigator.pushReplacement(
               context, MaterialPageRoute(builder: (content) => MainScreen()));
-        } else if (response.body ==
+        } 
+        else if(response.body == "AdminLogin"){        
+            Navigator.pushReplacement(
+              context, MaterialPageRoute(builder: (content) => AdminMainScreen()));
+        }
+        else if (response.body ==
             "Please activate your account via email first.") {
           Fluttertoast.showToast(
             msg: "Please activate your account via email first.",
@@ -173,7 +178,7 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void _registerNewAccount() {
-    Navigator.push(
+    Navigator.pushReplacement(
         context, MaterialPageRoute(builder: (content) => RegistrationScreen()));
   }
 
@@ -475,7 +480,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               "otp": otp,
                             }).then((response) {
                           if (response.body == "Reset Sucess") {
-                            Navigator.push(
+                            Navigator.pushReplacement(
                                 context,
                                 MaterialPageRoute(
                                     builder: (content) => LoginScreen()));

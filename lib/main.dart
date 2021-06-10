@@ -1,5 +1,6 @@
+import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
-import 'package:lokthienwestern/loginscreen.dart';
+import 'package:lokthienwestern/view/loginscreen.dart';
 import 'package:splashscreen/splashscreen.dart';
 
 void main() {
@@ -15,9 +16,18 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   @override
+  void initState() {
+    super.initState();
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
+  }
+
+  @override
   Widget build(BuildContext context) {
     return SplashScreen(
-      seconds: 5,
+      seconds: 3,
       navigateAfterSeconds: LoginScreen(),
       image: Image.asset('assets/images/logo.jpg'),
       backgroundColor: Colors.black,
@@ -27,5 +37,3 @@ class _MyAppState extends State<MyApp> {
     );
   }
 }
-
-
