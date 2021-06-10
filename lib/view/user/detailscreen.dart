@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lokthienwestern/widget/appbar.dart';
-import 'package:lokthienwestern/widget/title_price_raitng.dart';
+import 'package:lokthienwestern/widget/details.dart';
 import 'package:lokthienwestern/widget/orderbutton.dart';
 
 class DetailsScreen extends StatelessWidget {
