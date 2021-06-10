@@ -188,7 +188,6 @@ class _SearchState extends State<Search> {
           if (_searchController.text.isEmpty) {
             _isSearching = false;
             _loadProducts("null");
-            _titlecenter = "Search by Product Name.";
             _productList = null;
           } else {
             _loadProducts(value);
