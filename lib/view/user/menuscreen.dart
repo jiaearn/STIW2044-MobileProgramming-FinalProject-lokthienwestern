@@ -59,7 +59,6 @@ class _MenuScreenState extends State<MenuScreen> {
                       color: Colors.transparent,
                       child: IgnorePointer(
                         child: TextField(
-                          // controller: _srcController,
                           textInputAction: TextInputAction.search,
                           decoration: InputDecoration(
                             hintText: "Search Here",
