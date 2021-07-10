@@ -13,6 +13,7 @@ class RegistrationScreen extends StatefulWidget {
 class _RegistrationScreenState extends State<RegistrationScreen> {
   TextEditingController _usernameController = new TextEditingController();
   TextEditingController _emailController = new TextEditingController();
+  TextEditingController _fullnameController = new TextEditingController();
   TextEditingController _passwordController = new TextEditingController();
   TextEditingController _cpasswordController = new TextEditingController();
   TextEditingController _contactController = new TextEditingController();
@@ -24,130 +25,140 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   Widget build(BuildContext context) {
     screenHeight = MediaQuery.of(context).size.height;
     screenWidth = MediaQuery.of(context).size.width;
-    return Scaffold(
-      backgroundColor: Colors.black,
-      body: Center(
-          child: SingleChildScrollView(
-        child: Column(
-          children: [
-            Container(
-              margin: EdgeInsets.fromLTRB(70, 70, 70, 10),
-              height: 250,
-              width: 250,
-              child: Image.asset("assets/images/logo.jpg"),
-            ),
-            Card(
-              color: Colors.grey,
-              margin: EdgeInsets.fromLTRB(30, 0, 30, 15),
-              elevation: 10,
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(20, 5, 20, 5),
-                child: Column(
-                  children: [
-                    Text(
-                      'Registration',
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 24,
-                      ),
-                    ),
-                    TextFormField(
-                      controller: _usernameController,
-                      keyboardType: TextInputType.text,
-                      decoration: InputDecoration(
-                          labelText: 'Username',
-                          hintText: 'No uppercase & special characters',
-                          icon: Icon(Icons.person)),
-                    ),
-                    Form(
-                      autovalidateMode: AutovalidateMode.onUserInteraction,
-                      child: TextFormField(
-                        controller: _emailController,
-                        keyboardType: TextInputType.emailAddress,
-                        decoration: InputDecoration(
-                            labelText: 'Email',
-                            icon: Icon(Icons.email)),
-                        validator: (value) => EmailValidator.validate(value)
-                            ? null
-                            : "Please enter a valid email",
-                      ),
-                    ),
-                    TextFormField(
-                      obscureText: _isObscure,
-                      controller: _passwordController,
-                      decoration: InputDecoration(
-                          labelText: 'Password',
-                          hintText: '1 lowercase & 1 number',
-                          icon: Icon(Icons.lock),
-                          suffixIcon: IconButton(
-                              icon: Icon(_isObscure
-                                  ? Icons.visibility
-                                  : Icons.visibility_off),
-                              onPressed: () {
-                                setState(() {
-                                  _isObscure = !_isObscure;
-                                });
-                              })),
-                    ),
-                    TextFormField(
-                      obscureText: _isObscure2,
-                      controller: _cpasswordController,
-                      decoration: InputDecoration(
-                          labelText: 'Confirm Password',
-                          hintText: 'Match with Password',
-                          icon: Icon(Icons.lock),
-                          suffixIcon: IconButton(
-                              icon: Icon(_isObscure2
-                                  ? Icons.visibility
-                                  : Icons.visibility_off),
-                              onPressed: () {
-                                setState(() {
-                                  _isObscure2 = !_isObscure2;
-                                });
-                              })),
-                    ),
-                    TextFormField(
-                      controller: _contactController,
-                      keyboardType: TextInputType.numberWithOptions(
-                        decimal: true,
-                      ),
-                      inputFormatters: <TextInputFormatter>[
-                        FilteringTextInputFormatter.digitsOnly
-                      ],
-                      decoration: InputDecoration(
-                          labelText: 'Contact No.',
-                          hintText: '10 <= Length <= 13',
-                          icon: Icon(Icons.phone)),
-                    ),
-                    SizedBox(height: 10),
-                    MaterialButton(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(5),
+    return WillPopScope(
+      onWillPop: _logOut,
+      child: Scaffold(
+        backgroundColor: Colors.black,
+        body: Center(
+            child: SingleChildScrollView(
+          child: Column(
+            children: [
+              Container(
+                margin: EdgeInsets.fromLTRB(70, 70, 70, 10),
+                height: 250,
+                width: 250,
+                child: Image.asset("assets/images/logo.jpg"),
+              ),
+              Card(
+                color: Colors.grey,
+                margin: EdgeInsets.fromLTRB(30, 0, 30, 15),
+                elevation: 10,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 5, 20, 5),
+                  child: Column(
+                    children: [
+                      Text(
+                        'Registration',
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 24,
                         ),
-                        minWidth: 200,
-                        height: 50,
-                        child: Text("Register",
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 20,
-                            )),
-                        onPressed: _onRegister,
-                        color: Colors.grey[700]),
-                    SizedBox(height: 10),
-                  ],
+                      ),
+                      TextFormField(
+                        controller: _usernameController,
+                        keyboardType: TextInputType.text,
+                        decoration: InputDecoration(
+                            labelText: 'Username',
+                            hintText: 'No uppercase & special characters',
+                            icon: Icon(Icons.person)),
+                      ),
+                      Form(
+                        autovalidateMode: AutovalidateMode.onUserInteraction,
+                        child: TextFormField(
+                          controller: _emailController,
+                          keyboardType: TextInputType.emailAddress,
+                          decoration: InputDecoration(
+                              labelText: 'Email', icon: Icon(Icons.email)),
+                          validator: (value) => EmailValidator.validate(value)
+                              ? null
+                              : "Please enter a valid email",
+                        ),
+                      ),
+                      TextFormField(
+                        controller: _fullnameController,
+                        keyboardType: TextInputType.text,
+                        decoration: InputDecoration(
+                            labelText: 'Full Name',
+                            hintText: 'No special characters',
+                            icon: Icon(Icons.badge)),
+                      ),
+                      TextFormField(
+                        obscureText: _isObscure,
+                        controller: _passwordController,
+                        decoration: InputDecoration(
+                            labelText: 'Password',
+                            hintText: '1 lowercase & 1 number',
+                            icon: Icon(Icons.lock),
+                            suffixIcon: IconButton(
+                                icon: Icon(_isObscure
+                                    ? Icons.visibility
+                                    : Icons.visibility_off),
+                                onPressed: () {
+                                  setState(() {
+                                    _isObscure = !_isObscure;
+                                  });
+                                })),
+                      ),
+                      TextFormField(
+                        obscureText: _isObscure2,
+                        controller: _cpasswordController,
+                        decoration: InputDecoration(
+                            labelText: 'Confirm Password',
+                            hintText: 'Match with Password',
+                            icon: Icon(Icons.lock),
+                            suffixIcon: IconButton(
+                                icon: Icon(_isObscure2
+                                    ? Icons.visibility
+                                    : Icons.visibility_off),
+                                onPressed: () {
+                                  setState(() {
+                                    _isObscure2 = !_isObscure2;
+                                  });
+                                })),
+                      ),
+                      TextFormField(
+                        controller: _contactController,
+                        keyboardType: TextInputType.numberWithOptions(
+                          decimal: true,
+                        ),
+                        inputFormatters: <TextInputFormatter>[
+                          FilteringTextInputFormatter.digitsOnly
+                        ],
+                        decoration: InputDecoration(
+                            labelText: 'Contact No.',
+                            hintText: '10 <= Length <= 13',
+                            icon: Icon(Icons.phone)),
+                      ),
+                      SizedBox(height: 10),
+                      MaterialButton(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(5),
+                          ),
+                          minWidth: 200,
+                          height: 50,
+                          child: Text("Register",
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 20,
+                              )),
+                          onPressed: _onRegister,
+                          color: Colors.grey[700]),
+                      SizedBox(height: 10),
+                    ],
+                  ),
                 ),
               ),
-            ),
-            GestureDetector(
-              child: Text("Already Register?",
-                  style: TextStyle(fontSize: 16, color: Colors.grey)),
-              onTap: _alreadyRegister,
-            ),
-            SizedBox(height: 15),
-          ],
-        ),
-      )),
+              GestureDetector(
+                child: Text("Already Register?",
+                    style: TextStyle(fontSize: 16, color: Colors.grey)),
+                onTap: _alreadyRegister,
+              ),
+              SizedBox(height: 15),
+            ],
+          ),
+        )),
+      ),
     );
   }
 
@@ -159,6 +170,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   void _onRegister() {
     String _username = _usernameController.text.toString();
     String _email = _emailController.text.toString();
+    String _fullname = _fullnameController.text.toString();
     String _password = _passwordController.text.toString();
     String _cpassword = _cpasswordController.text.toString();
     String _contact = _contactController.text.toString();
@@ -166,6 +178,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
 
     if (_username.isEmpty ||
         _email.isEmpty ||
+        _fullname.isEmpty ||
         _password.isEmpty ||
         _cpassword.isEmpty ||
         _contact.isEmpty) {
@@ -195,6 +208,18 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     } else if (EmailValidator.validate(_email) == false) {
       Fluttertoast.showToast(
         msg: "Please insert a valid email address.",
+        toastLength: Toast.LENGTH_SHORT,
+      );
+      return;
+    } else if (_fullname.contains(RegExp(r'[!@#$%^&*(),.?":{}|<>~]'))) {
+      Fluttertoast.showToast(
+        msg: "Full name should not contain special character",
+        toastLength: Toast.LENGTH_SHORT,
+      );
+      return;
+    } else if (_fullname.contains(RegExp(r'[0-9]'))) {
+      Fluttertoast.showToast(
+        msg: "Full name should not contain number",
         toastLength: Toast.LENGTH_SHORT,
       );
       return;
@@ -249,7 +274,8 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                 child: Text("Ok"),
                 onPressed: () {
                   Navigator.of(context).pop();
-                  _registerUser(_username, _email, _password, _contact);
+                  _registerUser(
+                      _username, _email, _fullname, _password, _contact);
                 },
               ),
               TextButton(
@@ -262,13 +288,14 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
         });
   }
 
-  void _registerUser(
-      String username, String email, String password, String contact) {
+  void _registerUser(String username, String email, String fullname,
+      String password, String contact) {
     http.post(
         Uri.parse(
             "https://hubbuddies.com/269509/lokthienwestern/php/register_user.php"),
         body: {
           "username": username,
+          "fullname": fullname.toUpperCase(),
           "email": email,
           "password": password,
           "contact": contact
@@ -298,5 +325,44 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
         );
       }
     });
+  }
+
+  Future<bool> _logOut() {
+    return showDialog(
+          context: context,
+          builder: (context) => new AlertDialog(
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(Radius.circular(20.0))),
+            title: new Text(
+              'Do you want back to login screen?',
+              style: TextStyle(),
+            ),
+            content: new Text(
+              'Are your sure?',
+              style: TextStyle(),
+            ),
+            actions: <Widget>[
+              MaterialButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    Navigator.pushReplacement(context,
+                        MaterialPageRoute(builder: (content) => LoginScreen()));
+                  },
+                  child: Text(
+                    "Yes",
+                    style: TextStyle(),
+                  )),
+              MaterialButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: Text(
+                    "No",
+                    style: TextStyle(),
+                  )),
+            ],
+          ),
+        ) ??
+        false;
   }
 }

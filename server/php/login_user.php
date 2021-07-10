@@ -28,7 +28,7 @@ if ($result3->num_rows > 0) {
     }
 }
 
-elseif ($result4->num_rows > 0) {
+else if ($result4->num_rows > 0) {
     while ($row = $result4 ->fetch_assoc()){
         echo $data = "Please activate your account via email first.";
     }
@@ -36,12 +36,12 @@ elseif ($result4->num_rows > 0) {
 else{ 
 if ($result->num_rows > 0) {
     while ($row = $result ->fetch_assoc()){
-        echo $data = "Success";
+        echo $data = "Success,".$row["username"].",".$row["email"].",".$row["fullname"].",".$row["reg_date"].",".$row["gender"].",".$row["contact"];
     }
 }
 else if($result2->num_rows > 0){
     while ($row = $result2 ->fetch_assoc()){
-        echo $data = "Success";
+        echo $data = "Success,".$row["username"].",".$row["email"].",".$row["fullname"].",".$row["reg_date"].",".$row["gender"].",".$row["contact"];
     } 
 }
 else{

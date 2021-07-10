@@ -2,6 +2,7 @@ import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:lokthienwestern/model/user.dart';
 import 'package:lokthienwestern/view/admin/adminmainscreen.dart';
 import 'package:lokthienwestern/view/user/mainscreen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -153,25 +154,33 @@ class _LoginScreenState extends State<LoginScreen> {
             "email": _emailName,
             "password": _password
           }).then((response) {
-        if (response.body == "Success") {
-          Navigator.pushReplacement(
-              context, MaterialPageRoute(builder: (content) => MainScreen()));
-        } 
-        else if(response.body == "AdminLogin"){        
-            Navigator.pushReplacement(
-              context, MaterialPageRoute(builder: (content) => AdminMainScreen()));
-        }
-        else if (response.body ==
+        if (response.body == "Failed") {
+          Fluttertoast.showToast(
+            msg: "Login Failed",
+            toastLength: Toast.LENGTH_SHORT,
+          );
+        } else if (response.body == "AdminLogin") {
+          Navigator.pushReplacement(context,
+              MaterialPageRoute(builder: (content) => AdminMainScreen()));
+        } else if (response.body ==
             "Please activate your account via email first.") {
           Fluttertoast.showToast(
             msg: "Please activate your account via email first.",
             toastLength: Toast.LENGTH_SHORT,
           );
         } else {
-          Fluttertoast.showToast(
-            msg: "Login Failed",
-            toastLength: Toast.LENGTH_SHORT,
+          List userdata = response.body.split(",");
+          User user = User(
+            username: userdata[1],
+            email: userdata[2],
+            fullname: userdata[3],
+            regDate: userdata[4],
+            gender: userdata[5],
+            contact: userdata[6],
           );
+
+          Navigator.pushReplacement(context,
+              MaterialPageRoute(builder: (content) => MainScreen(user: user)));
         }
       });
     }
@@ -471,6 +480,14 @@ class _LoginScreenState extends State<LoginScreen> {
                             toastLength: Toast.LENGTH_SHORT,
                           );
                           return;
+                        } else if (_rpasswordController.text
+                            .toString()
+                            .contains(RegExp(r'[ ]'))) {
+                          Fluttertoast.showToast(
+                            msg: "Your password should not contain space",
+                            toastLength: Toast.LENGTH_SHORT,
+                          );
+                          return;
                         }
                         http.post(
                             Uri.parse(
@@ -479,7 +496,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               "npassword": _rpasswordController.text.toString(),
                               "otp": otp,
                             }).then((response) {
-                          if (response.body == "Reset Sucess") {
+                          if (response.body == "Reset Success") {
                             Navigator.pushReplacement(
                                 context,
                                 MaterialPageRoute(

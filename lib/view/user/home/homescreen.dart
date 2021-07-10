@@ -3,35 +3,104 @@ import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:http/http.dart' as http;
 import 'package:carousel_slider/carousel_slider.dart';
-import 'package:lokthienwestern/view/user/detailscreen.dart';
-import 'package:lokthienwestern/widget/food_categ.dart';
+import 'package:lokthienwestern/model/detail.dart';
+import 'package:lokthienwestern/model/user.dart';
+import 'package:lokthienwestern/view/user/checkout/cartscreen.dart';
+import 'package:lokthienwestern/widget/foodcateg.dart';
 import 'package:lokthienwestern/widget/loading.dart';
-import 'package:lokthienwestern/view/user/searchscreen.dart';
+import 'package:lokthienwestern/view/user/home/searchscreen.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({
-    Key key,
-  }) : super(key: key);
+  final User user;
+
+  const HomeScreen({Key key, this.user}) : super(key: key);
 
   @override
   _HomeScreenState createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  List _productList;
+  List _bannerList;
+  Detail detail;
+  int cartitem;
 
   @override
   void initState() {
     super.initState();
-    _loadProducts("all");
+    _loadCart();
+    _loadBanner();
   }
 
   @override
   Widget build(BuildContext context) {
     var screenWidth = MediaQuery.of(context).size.width;
-
     return Scaffold(
-          body: SafeArea(
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        centerTitle: true,
+        iconTheme: IconThemeData(color: Colors.white),
+        elevation: 0.5,
+        backgroundColor: Colors.black,
+        title: Text('Lok Thien Western',
+            style: TextStyle(
+                fontSize: 35,
+                color: Colors.white,
+                fontWeight: FontWeight.normal,
+                fontFamily: "Samantha")),
+        actions: <Widget>[
+          Stack(
+            children: <Widget>[
+              IconButton(
+                icon: Icon(Icons.shopping_cart),
+                onPressed: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (content) => CartScreen(
+                                user: widget.user,
+                              ))).then((_) => setState(() {
+                        _loadCart();
+                      }));
+                },
+              ),
+              Positioned(
+                left: 25,
+                child: Container(
+                    width: 19,
+                    height: 19,
+                    decoration: BoxDecoration(
+                        border: Border.all(
+                          color: Colors.white,
+                        ),
+                        color: Colors.black,
+                        shape: BoxShape.circle),
+                    child: Center(
+                      child: cartitem == null
+                          ? Text(
+                              "...",
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              textAlign: TextAlign.center,
+                            )
+                          : Text(
+                              cartitem.toString(),
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                    )),
+              )
+            ],
+          ),
+        ],
+      ),
+      body: SafeArea(
         child: Column(children: [
           Container(
             decoration: BoxDecoration(
@@ -53,14 +122,19 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   title: GestureDetector(
                     onTap: () {
-                      Navigator.push(context,
-                          MaterialPageRoute(builder: (content) => Search()));
+                      Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (content) =>
+                                      Search(user: widget.user)))
+                          .then((_) => setState(() {
+                                _loadCart();
+                              }));
                     },
                     child: Container(
                       color: Colors.transparent,
                       child: IgnorePointer(
                         child: TextField(
-                          // controller: _srcController,
                           textInputAction: TextInputAction.search,
                           decoration: InputDecoration(
                             hintText: "Search Here",
@@ -74,7 +148,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
           ),
-          _productList == null
+          _bannerList == null
               ? Flexible(
                   child: Container(
                   child: Column(
@@ -88,7 +162,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       children: <Widget>[
                         SizedBox(height: 15.0),
                         CarouselSlider.builder(
-                          itemCount: _productList.length,
+                          itemCount: _bannerList.length,
                           options: CarouselOptions(
                             height: screenWidth * 9 / 16,
                             enlargeCenterPage: true,
@@ -102,91 +176,36 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                           itemBuilder:
                               (BuildContext context, int index, realindex) =>
-                                  GestureDetector(
-                            onTap: () => {
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (content) => DetailsScreen(
-                                            productimage: CachedNetworkImage(
-                                              imageUrl:
-                                                  "https://hubbuddies.com/269509/lokthienwestern/images/product_pictures/${_productList[index]['product_id']}.png",
-                                              fit: BoxFit.cover,
-                                            ),
-                                            productname: _productList[index]
-                                                ['product_name'],
-                                            productprice: _productList[index]
-                                                ['product_price'],
-                                            productdesc: _productList[index]
-                                                ['product_desc'],
-                                            productrating: _productList[index]
-                                                ['product_rating'],
-                                          )))
-                            },
-                            child: Stack(
-                              fit: StackFit.expand,
-                              children: <Widget>[
-                                Positioned.fill(
-                                    child: Align(
-                                  alignment: Alignment.center,
-                                  child: Loading(),
-                                )),
-                                Container(
-                                  decoration: BoxDecoration(
-                                      borderRadius:
-                                          BorderRadius.all(Radius.circular(20.0)),
-                                      boxShadow: [
-                                        BoxShadow(
-                                            color: Colors.black38,
-                                            offset: Offset(2.0, 2.0),
-                                            blurRadius: 5.0,
-                                            spreadRadius: 1.0)
-                                      ]),
+                                  Stack(
+                            fit: StackFit.expand,
+                            children: <Widget>[
+                              Positioned.fill(
+                                  child: Align(
+                                alignment: Alignment.center,
+                                child: Loading(),
+                              )),
+                              Container(
+                                decoration: BoxDecoration(
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(20.0)),
+                                    boxShadow: [
+                                      BoxShadow(
+                                          color: Colors.black38,
+                                          offset: Offset(2.0, 2.0),
+                                          blurRadius: 5.0,
+                                          spreadRadius: 1.0)
+                                    ]),
+                              ),
+                              ClipRRect(
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(20.0)),
+                                child: CachedNetworkImage(
+                                  imageUrl:
+                                      "https://hubbuddies.com/269509/lokthienwestern/images/banner_pictures/${_bannerList[index]['banner_id']}.png",
+                                  fit: BoxFit.cover,
                                 ),
-                                ClipRRect(
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(20.0)),
-                                  child: CachedNetworkImage(
-                                    imageUrl:
-                                        "https://hubbuddies.com/269509/lokthienwestern/images/product_pictures/${_productList[index]['product_id']}.png",
-                                    fit: BoxFit.cover,
-                                  ),
-                                ),
-                                Container(
-                                  decoration: BoxDecoration(
-                                      borderRadius:
-                                          BorderRadius.all(Radius.circular(20.0)),
-                                      gradient: LinearGradient(
-                                          begin: Alignment.topCenter,
-                                          end: Alignment.bottomCenter,
-                                          colors: [
-                                            Colors.transparent,
-                                            Colors.black
-                                          ])),
-                                ),
-                                Padding(
-                                  padding: EdgeInsets.all(10.0),
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.end,
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: <Widget>[
-                                      Text(
-                                        titleSub(
-                                            _productList[index]['product_name']),
-                                        style: TextStyle(
-                                            fontSize: 25.0, color: Colors.white),
-                                      ),
-                                      Text(
-                                        "Price: RM" +
-                                            _productList[index]['product_price'],
-                                        style: TextStyle(
-                                            fontSize: 12.0, color: Colors.white),
-                                      )
-                                    ],
-                                  ),
-                                )
-                              ],
-                            ),
+                              ),
+                            ],
                           ),
                         ),
                         SizedBox(
@@ -206,6 +225,24 @@ class _HomeScreenState extends State<HomeScreen> {
                             ],
                           ),
                         ),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              Text("Burger & Hotdog",
+                                  style: TextStyle(
+                                    fontSize: 17,
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.normal,
+                                  )),
+                            ],
+                          ),
+                        ),
+                        FoodCateg(
+                          user: widget.user,
+                          productcateg: "BurgerHotdog",
+                        ),
                         SizedBox(
                           height: 10,
                         ),
@@ -214,26 +251,9 @@ class _HomeScreenState extends State<HomeScreen> {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.start,
                             children: [
-                              Text("Burger & Hotdog",
-                                  style: TextStyle(
-                                    fontSize: 15,
-                                    color: Colors.black,
-                                    fontWeight: FontWeight.normal,
-                                  )),
-                            ],
-                          ),
-                        ),
-                        FoodCateg(
-                          productcateg: "BurgerHotdog",
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
                               Text("Rice",
                                   style: TextStyle(
-                                    fontSize: 15,
+                                    fontSize: 17,
                                     color: Colors.black,
                                     fontWeight: FontWeight.normal,
                                   )),
@@ -241,7 +261,11 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                         ),
                         FoodCateg(
+                          user: widget.user,
                           productcateg: "Rice",
+                        ),
+                        SizedBox(
+                          height: 10,
                         ),
                         Padding(
                           padding: const EdgeInsets.all(8.0),
@@ -250,7 +274,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             children: [
                               Text("Main Course",
                                   style: TextStyle(
-                                    fontSize: 15,
+                                    fontSize: 17,
                                     color: Colors.black,
                                     fontWeight: FontWeight.normal,
                                   )),
@@ -258,7 +282,11 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                         ),
                         FoodCateg(
+                          user: widget.user,
                           productcateg: "Main Course",
+                        ),
+                        SizedBox(
+                          height: 10,
                         ),
                         Padding(
                           padding: const EdgeInsets.all(8.0),
@@ -267,7 +295,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             children: [
                               Text("Spaghetti",
                                   style: TextStyle(
-                                    fontSize: 15,
+                                    fontSize: 17,
                                     color: Colors.black,
                                     fontWeight: FontWeight.normal,
                                   )),
@@ -275,7 +303,11 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                         ),
                         FoodCateg(
+                          user: widget.user,
                           productcateg: "Spaghetti",
+                        ),
+                        SizedBox(
+                          height: 10,
                         ),
                         Padding(
                           padding: const EdgeInsets.all(8.0),
@@ -284,7 +316,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             children: [
                               Text("Snacks",
                                   style: TextStyle(
-                                    fontSize: 15,
+                                    fontSize: 17,
                                     color: Colors.black,
                                     fontWeight: FontWeight.normal,
                                   )),
@@ -292,6 +324,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                         ),
                         FoodCateg(
+                          user: widget.user,
                           productcateg: "Snacks",
                         ),
                       ],
@@ -303,27 +336,30 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  void _loadProducts(String _productname) {
+  void _loadBanner() {
     http.post(
         Uri.parse(
-            "https://hubbuddies.com/269509/lokthienwestern/php/load_products.php"),
-        body: {"product_name": _productname}).then((response) {
+            "https://hubbuddies.com/269509/lokthienwestern/php/load_banner.php"),
+        body: {}).then((response) {
       if (response.body == "nodata") {
         setState(() {});
         return;
       } else {
         var jsondata = json.decode(response.body);
-        _productList = jsondata["products"];
+        _bannerList = jsondata["banner"];
         setState(() {});
       }
     });
   }
 
-  String titleSub(String title) {
-    if (title.length > 14) {
-      return title.substring(0, 14) + "...";
-    } else {
-      return title;
-    }
+  void _loadCart() {
+    http.post(
+        Uri.parse(
+            "https://hubbuddies.com/269509/lokthienwestern/php/load_cartqty.php"),
+        body: {"email": widget.user.email}).then((response) {
+      setState(() {
+        cartitem = int.parse(response.body);
+      });
+    });
   }
 }

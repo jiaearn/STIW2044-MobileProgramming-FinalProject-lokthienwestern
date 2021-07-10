@@ -10,6 +10,7 @@ require '/home8/hubbuddi/public_html/269509/lokthienwestern/php/PHPMailer/SMTP.p
 include_once("dbconnect.php");
 $username = $_POST['username'];
 $email = $_POST['email'];
+$fullname = $_POST['fullname'];
 $password = $_POST['password'];
 $pass_sha1 = sha1($password);
 $otp = rand(100000,999999);
@@ -29,7 +30,7 @@ else if($result2->num_rows>0){
     }
 
 else{    
-$sqlregister = "INSERT INTO tbl_user(username,email,password,otp,contact) VALUES('$username','$email','$pass_sha1','$otp','$contact')";
+$sqlregister = "INSERT INTO tbl_user(username,email,fullname,password,otp,contact) VALUES('$username','$email','$fullname','$pass_sha1','$otp','$contact')";
 
 if($conn->query($sqlregister) === TRUE){
     echo "Success";

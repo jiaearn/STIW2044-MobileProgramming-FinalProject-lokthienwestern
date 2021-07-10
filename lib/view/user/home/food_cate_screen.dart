@@ -2,13 +2,21 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:http/http.dart' as http;
-import 'package:lokthienwestern/view/user/detailscreen.dart';
+import 'package:lokthienwestern/model/detail.dart';
+import 'package:lokthienwestern/model/user.dart';
+import 'package:lokthienwestern/view/user/menu/detailscreen.dart';
+import 'package:lokthienwestern/view/user/mainscreen.dart';
 import 'package:lokthienwestern/widget/loading.dart';
 
 class FoodCategScreen extends StatefulWidget {
+  final User user;
   final productcateg;
 
-  const FoodCategScreen({Key key, this.productcateg}) : super(key: key);
+  const FoodCategScreen({
+    Key key,
+    this.productcateg,
+    this.user,
+  }) : super(key: key);
   @override
   _FoodCategScreenState createState() => _FoodCategScreenState();
 }
@@ -16,6 +24,8 @@ class FoodCategScreen extends StatefulWidget {
 class _FoodCategScreenState extends State<FoodCategScreen> {
   List _categoryList;
   double screenHeight, screenWidth;
+  Detail detail;
+  int cartitem;
 
   @override
   void initState() {
@@ -30,6 +40,15 @@ class _FoodCategScreenState extends State<FoodCategScreen> {
 
     return Scaffold(
       appBar: AppBar(
+        leading: BackButton(
+            color: Colors.white,
+            onPressed: () {
+              Navigator.pop(context);
+              Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                      builder: (content) => MainScreen(user: widget.user)));
+            }),
         centerTitle: true,
         title: Text(widget.productcateg,
             style: TextStyle(
@@ -121,29 +140,30 @@ class _FoodCategScreenState extends State<FoodCategScreen> {
                                       primary: Colors.black,
                                     ),
                                     onPressed: () => {
+                                      detail = Detail(
+                                        productid: _categoryList[index]
+                                            ['product_id'],
+                                        productimage: CachedNetworkImage(
+                                          imageUrl:
+                                              "https://hubbuddies.com/269509/lokthienwestern/images/product_pictures/${_categoryList[index]['product_id']}.png",
+                                          fit: BoxFit.cover,
+                                        ),
+                                        productname: _categoryList[index]
+                                            ['product_name'],
+                                        productprice: _categoryList[index]
+                                            ['product_price'],
+                                        productdesc: _categoryList[index]
+                                            ['product_desc'],
+                                        productrating: _categoryList[index]
+                                            ['product_rating'],
+                                      ),
                                       Navigator.push(
                                           context,
                                           MaterialPageRoute(
                                               builder: (content) =>
                                                   DetailsScreen(
-                                                    productimage:
-                                                        CachedNetworkImage(
-                                                      imageUrl:
-                                                          "https://hubbuddies.com/269509/lokthienwestern/images/product_pictures/${_categoryList[index]['product_id']}.png",
-                                                      fit: BoxFit.cover,
-                                                    ),
-                                                    productname:
-                                                        _categoryList[index]
-                                                            ['product_name'],
-                                                    productprice:
-                                                        _categoryList[index]
-                                                            ['product_price'],
-                                                    productdesc:
-                                                        _categoryList[index]
-                                                            ['product_desc'],
-                                                    productrating:
-                                                        _categoryList[index]
-                                                            ['product_rating'],
+                                                    detail: detail,
+                                                    user: widget.user,
                                                   )))
                                     },
                                     child: Text("View More"),

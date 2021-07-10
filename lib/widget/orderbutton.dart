@@ -33,7 +33,7 @@ class OrderButton extends StatelessWidget {
                 ),
                 SizedBox(width: 10),
                 Text(
-                  "ADD TO CARD",
+                  "ADD TO CART",
                   style: TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.bold,

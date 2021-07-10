@@ -1,33 +1,38 @@
-import 'dart:io';
-import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:image_cropper/image_cropper.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
-import 'package:lokthienwestern/view/admin/adminmainscreen.dart';
-import 'package:progress_dialog/progress_dialog.dart';
+import 'package:lokthienwestern/model/product.dart';
+import 'package:ndialog/ndialog.dart';
 
-class NewProduct extends StatefulWidget {
-  const NewProduct({
+class EditProduct extends StatefulWidget {
+  final Product product;
+  const EditProduct({
     Key key,
+    this.product,
   }) : super(key: key);
   @override
-  _NewProductState createState() => _NewProductState();
+  _EditProductState createState() => _EditProductState();
 }
 
-class _NewProductState extends State<NewProduct> {
-  ProgressDialog pd;
+class _EditProductState extends State<EditProduct> {
   double screenHeight, screenWidth;
-  File _image;
-  String pathAsset = 'assets/images/uploadLogo.png';
 
   TextEditingController _prname = new TextEditingController();
   TextEditingController _prprice = new TextEditingController();
   TextEditingController _prcateg = new TextEditingController();
   TextEditingController _prdesc = new TextEditingController();
   TextEditingController _prrating = new TextEditingController();
+
+  @override
+  void initState() {
+    _prname.text = widget.product.productname;
+    _prprice.text = widget.product.productprice;
+    _prcateg.text = widget.product.productcateg;
+    _prdesc.text = widget.product.productdesc;
+    _prrating.text = widget.product.productrating;
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -40,7 +45,7 @@ class _NewProductState extends State<NewProduct> {
         iconTheme: IconThemeData(color: Colors.white),
         elevation: 0.5,
         backgroundColor: Colors.black,
-        title: Text('Add New Product',
+        title: Text('Edit Product',
             style: TextStyle(
                 fontSize: 35,
                 color: Colors.white,
@@ -54,27 +59,27 @@ class _NewProductState extends State<NewProduct> {
                 child: Column(
               children: [
                 SizedBox(height: 15),
-                GestureDetector(
-                  onTap: () => {_onPictureSelectionDialog()},
-                  child: Container(
-                      height: 200,
-                      width: 200,
-                      decoration: BoxDecoration(
-                          image: DecorationImage(
-                            image: _image == null
-                                ? AssetImage(pathAsset)
-                                : FileImage(_image),
-                            fit: BoxFit.scaleDown,
-                          ),
-                          border: Border.all(
-                            width: 3.0,
-                            color: Colors.grey,
-                          ),
-                          borderRadius:
-                              BorderRadius.all(Radius.circular(10.0)))),
+                Container(
+                  decoration: BoxDecoration(
+                      border: Border.all(
+                        width: 3.0,
+                        color: Colors.grey,
+                      ),
+                      borderRadius: BorderRadius.all(Radius.circular(10.0))),
+                  child: SizedBox(
+                    width: 200,
+                    height: 200,
+                    child: AspectRatio(
+                      aspectRatio: 1,
+                      child: Hero(
+                        tag: '',
+                        child: widget.product.productimage,
+                      ),
+                    ),
+                  ),
                 ),
                 SizedBox(height: 10),
-                Text("Click image to take/upload your product picture.",
+                Text("Cannot edit your product picture.",
                     style: TextStyle(fontSize: 12.0, color: Colors.black)),
                 SizedBox(height: 25),
                 Card(
@@ -90,6 +95,7 @@ class _NewProductState extends State<NewProduct> {
                           keyboardType: TextInputType.text,
                           decoration: InputDecoration(
                             labelText: 'Product Name',
+                            labelStyle: TextStyle(color: Colors.black),
                           ),
                         ),
                         TextFormField(
@@ -102,15 +108,15 @@ class _NewProductState extends State<NewProduct> {
                                 RegExp(r'^(\d+)?\.?\d{0,2}')),
                           ],
                           decoration: InputDecoration(
-                            labelText: 'Price',
-                          ),
+                              labelText: 'Price',
+                              labelStyle: TextStyle(color: Colors.black)),
                         ),
                         TextFormField(
                           controller: _prcateg,
                           keyboardType: TextInputType.text,
                           decoration: InputDecoration(
-                            labelText: 'Product Category',
-                          ),
+                              labelText: 'Product Category',
+                              labelStyle: TextStyle(color: Colors.black)),
                         ),
                         TextFormField(
                           controller: _prdesc,
@@ -118,8 +124,8 @@ class _NewProductState extends State<NewProduct> {
                           maxLines: 7,
                           keyboardType: TextInputType.multiline,
                           decoration: InputDecoration(
-                            labelText: 'Product Description',
-                          ),
+                              labelText: 'Product Description',
+                              labelStyle: TextStyle(color: Colors.black)),
                         ),
                         TextFormField(
                           controller: _prrating,
@@ -130,8 +136,8 @@ class _NewProductState extends State<NewProduct> {
                             FilteringTextInputFormatter.digitsOnly
                           ],
                           decoration: InputDecoration(
-                            labelText: 'Product Rating',
-                          ),
+                              labelText: 'Product Rating',
+                              labelStyle: TextStyle(color: Colors.black)),
                         ),
                         SizedBox(height: 15),
                       ],
@@ -149,12 +155,12 @@ class _NewProductState extends State<NewProduct> {
                         ),
                         minWidth: 200,
                         height: 50,
-                        child: Text("Submit",
+                        child: Text("Update",
                             style: TextStyle(
                               color: Colors.white,
                               fontSize: 20,
                             )),
-                        onPressed: _submitProductDialog,
+                        onPressed: _updateProductDialog,
                         color: Colors.black),
                   ],
                 )),
@@ -164,137 +170,19 @@ class _NewProductState extends State<NewProduct> {
     );
   }
 
-  _onPictureSelectionDialog() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.all(Radius.circular(10.0))),
-            content: new Container(
-              height: screenHeight / 4,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  Container(
-                      alignment: Alignment.center,
-                      child: Text(
-                        "Take picture from:",
-                        style: TextStyle(
-                            color: Colors.black,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16),
-                      )),
-                  SizedBox(height: 15),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Flexible(
-                          child: MaterialButton(
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(5.0),
-                            side: BorderSide(color: Colors.black)),
-                        minWidth: 100,
-                        height: 100,
-                        child: Text('Camera',
-                            style: TextStyle(
-                              color: Colors.black,
-                            )),
-                        color: Colors.white,
-                        elevation: 10,
-                        onPressed: () =>
-                            {Navigator.pop(context), _chooseCamera()},
-                      )),
-                      SizedBox(width: 10),
-                      Flexible(
-                          child: MaterialButton(
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(5.0),
-                            side: BorderSide(color: Colors.black)),
-                        minWidth: 100,
-                        height: 100,
-                        child: Text('Gallery',
-                            style: TextStyle(
-                              color: Colors.black,
-                            )),
-                        color: Colors.white,
-                        elevation: 10,
-                        onPressed: () =>
-                            {Navigator.pop(context), _chooseGallery()},
-                      )),
-                    ],
-                  ),
-                ],
-              ),
-            ));
-      },
-    );
-  }
-
-  Future _chooseCamera() async {
-    final picker = ImagePicker();
-    final pickedFile = await picker.getImage(
-      source: ImageSource.camera,
-      maxHeight: 800,
-      maxWidth: 800,
-    );
-
-    if (pickedFile != null) {
-      _image = File(pickedFile.path);
-      _cropImage();
-    }
-  }
-
-  _chooseGallery() async {
-    final picker = ImagePicker();
-    final pickedFile = await picker.getImage(
-      source: ImageSource.gallery,
-      maxHeight: 800,
-      maxWidth: 800,
-    );
-
-    if (pickedFile != null) {
-      _image = File(pickedFile.path);
-      _cropImage();
-    }
-  }
-
-  _cropImage() async {
-    File croppedFile = await ImageCropper.cropImage(
-        sourcePath: _image.path,
-        aspectRatioPresets: [CropAspectRatioPreset.ratio16x9],
-        androidUiSettings: AndroidUiSettings(
-            toolbarTitle: 'Crop your image',
-            toolbarColor: Colors.blueAccent[400],
-            toolbarWidgetColor: Colors.white,
-            initAspectRatio: CropAspectRatioPreset.original,
-            lockAspectRatio: true),
-        iosUiSettings: IOSUiSettings(
-          minimumAspectRatio: 1.0,
-        ));
-
-    if (croppedFile != null) {
-      _image = croppedFile;
-      setState(() {});
-    }
-  }
-
-  void _submitProductDialog() {
+  void _updateProductDialog() {
     String prname = _prname.text.toString();
     String prcateg = _prcateg.text.toString();
     String prprice = _prprice.text.toString();
     String prdesc = _prdesc.text.toString();
     String prrating = _prrating.text.toString();
-    if (_image == null ||
-        prname == "" ||
+    if (prname == "" ||
         prcateg == "" ||
         prprice == "" ||
         prdesc == "" ||
         prrating == "") {
       Fluttertoast.showToast(
-        msg: "Image OR Textfield is empty!",
+        msg: "Textfield is empty!",
         toastLength: Toast.LENGTH_SHORT,
         gravity: ToastGravity.BOTTOM,
         timeInSecForIosWeb: 1,
@@ -339,14 +227,14 @@ class _NewProductState extends State<NewProduct> {
           return AlertDialog(
             shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.all(Radius.circular(20.0))),
-            title: Text("Add your product?"),
+            title: Text("Update your product?"),
             content: Text("Are your sure?"),
             actions: [
               TextButton(
                 child: Text("Ok"),
                 onPressed: () {
                   Navigator.of(context).pop();
-                  _postProduct();
+                  _editProduct();
                 },
               ),
               TextButton(
@@ -359,54 +247,36 @@ class _NewProductState extends State<NewProduct> {
         });
   }
 
-  Future<void> _postProduct() async {
-    pd = ProgressDialog(context);
-    pd.style(
-      message: 'Posting...',
-      borderRadius: 5.0,
-      backgroundColor: Colors.white,
-      progressWidget: CircularProgressIndicator(),
-      elevation: 10.0,
-      insetAnimCurve: Curves.easeInOut,
-    );
-    pd = ProgressDialog(context,
-        type: ProgressDialogType.Normal, isDismissible: true, showLogs: true);
-    await pd.show();
-    String base64Image = base64Encode(_image.readAsBytesSync());
+  Future<void> _editProduct() async {
+    ProgressDialog progressDialog = ProgressDialog(context,
+        message: Text("Edit product"), title: Text("Progress..."));
+    progressDialog.show();
+    await Future.delayed(Duration(seconds: 1));
     String prname = _prname.text.toString();
     String prcateg = _prcateg.text.toString();
     String prprice = _prprice.text.toString();
     String prdesc = _prdesc.text.toString();
+
     String prrating = _prrating.text.toString();
     http.post(
         Uri.parse(
-            "https://hubbuddies.com/269509/lokthienwestern/php/new_product.php"),
+            "https://hubbuddies.com/269509/lokthienwestern/php/update_product.php"),
         body: {
+          "product_id": widget.product.productid,
           "product_name": prname,
           "product_price": prprice,
           "product_categ": prcateg,
           "product_desc": prdesc,
           "product_rating": prrating,
-          "encoded_string": base64Image
         }).then((response) {
-      pd.hide().then((isHidden) {});
       if (response.body == "Success") {
         Fluttertoast.showToast(
-          msg: "Success",
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.BOTTOM,
-          timeInSecForIosWeb: 1,
-        );
-        Navigator.pushReplacement(context,
-            MaterialPageRoute(builder: (content) => AdminMainScreen()));
+            msg: "Success", toastLength: Toast.LENGTH_SHORT, fontSize: 16.0);
       } else {
         Fluttertoast.showToast(
-          msg: "Failed",
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.BOTTOM,
-          timeInSecForIosWeb: 1,
-        );
+            msg: "Failed", toastLength: Toast.LENGTH_SHORT, fontSize: 16.0);
       }
+      progressDialog.dismiss();
     });
   }
 }

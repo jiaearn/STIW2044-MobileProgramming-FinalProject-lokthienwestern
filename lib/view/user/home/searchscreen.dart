@@ -2,16 +2,25 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:lokthienwestern/view/user/detailscreen.dart';
+import 'package:lokthienwestern/model/detail.dart';
+import 'package:lokthienwestern/model/user.dart';
+import 'package:lokthienwestern/view/user/menu/detailscreen.dart';
+import 'package:lokthienwestern/widget/loading.dart';
 
 class Search extends StatefulWidget {
+  final User user;
+
+  const Search({Key key, this.user}) : super(key: key);
   @override
   _SearchState createState() => _SearchState();
 }
 
 class _SearchState extends State<Search> {
   List _productList;
+  Detail detail;
   String _titlecenter = "Search by Product Name.";
+  String _imagecenter = "assets/images/search.png";
+
   TextEditingController _searchController = TextEditingController();
   double screenHeight, screenWidth;
   bool _isSearching = false;
@@ -24,7 +33,9 @@ class _SearchState extends State<Search> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.black,
-        leading: BackButton(),
+        leading: BackButton(onPressed: () {
+          Navigator.pop(context);
+        }),
         title: _searchTextField(),
         actions: _buildActions(),
       ),
@@ -33,10 +44,27 @@ class _SearchState extends State<Search> {
           _productList == null
               ? Flexible(
                   child: Center(
-                      child: Text(_titlecenter,
-                          style: TextStyle(
-                              fontSize: 20, fontWeight: FontWeight.normal))),
-                )
+                  child: _titlecenter == ""
+                      ? Loading()
+                      : Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Image.asset(
+                              _imagecenter,
+                              height: 150,
+                              width: 150,
+                            ),
+                            SizedBox(height: 10),
+                            Text(_titlecenter,
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.bold,
+                                )),
+                            SizedBox(height: 20),
+                          ],
+                        ),
+                ))
               : Flexible(
                   child: Center(
                     child: Column(children: [
@@ -130,36 +158,38 @@ class _SearchState extends State<Search> {
                                                   primary: Colors.black,
                                                 ),
                                                 onPressed: () => {
+                                                  detail = Detail(
+                                                    productid:
+                                                        _productList[index]
+                                                            ['product_id'],
+                                                    productimage:
+                                                        CachedNetworkImage(
+                                                      imageUrl:
+                                                          "https://hubbuddies.com/269509/lokthienwestern/images/product_pictures/${_productList[index]['product_id']}.png",
+                                                      fit: BoxFit.cover,
+                                                    ),
+                                                    productname:
+                                                        _productList[index]
+                                                            ['product_name'],
+                                                    productprice:
+                                                        _productList[index]
+                                                            ['product_price'],
+                                                    productdesc:
+                                                        _productList[index]
+                                                            ['product_desc'],
+                                                    productrating:
+                                                        _productList[index]
+                                                            ['product_rating'],
+                                                  ),
                                                   Navigator.push(
                                                       context,
                                                       MaterialPageRoute(
-                                                          builder:
-                                                              (content) =>
-                                                                  DetailsScreen(
-                                                                    productimage:
-                                                                        CachedNetworkImage(
-                                                                      imageUrl:
-                                                                          "https://hubbuddies.com/269509/lokthienwestern/images/product_pictures/${_productList[index]['product_id']}.png",
-                                                                      fit: BoxFit
-                                                                          .cover,
-                                                                    ),
-                                                                    productname:
-                                                                        _productList[index]
-                                                                            [
-                                                                            'product_name'],
-                                                                    productprice:
-                                                                        _productList[index]
-                                                                            [
-                                                                            'product_price'],
-                                                                    productdesc:
-                                                                        _productList[index]
-                                                                            [
-                                                                            'product_desc'],
-                                                                    productrating:
-                                                                        _productList[index]
-                                                                            [
-                                                                            'product_rating'],
-                                                                  )))
+                                                          builder: (content) =>
+                                                              DetailsScreen(
+                                                                detail: detail,
+                                                                user:
+                                                                    widget.user,
+                                                              )))
                                                 },
                                                 child: Text("View More"),
                                               ),
@@ -210,8 +240,10 @@ class _SearchState extends State<Search> {
         IconButton(
           icon: const Icon(Icons.clear),
           onPressed: () {
+            FocusScope.of(context).unfocus();
             setState(() {
               _loadProducts("null");
+              _imagecenter = "assets/images/search.png";
               _titlecenter = "Search by Product Name.";
               _productList = null;
               _searchController.clear();
@@ -239,18 +271,18 @@ class _SearchState extends State<Search> {
             "https://hubbuddies.com/269509/lokthienwestern/php/load_products.php?"),
         body: {"product_name": _productname}).then((response) {
       if (response.body == "nodata") {
+        _imagecenter = "assets/images/searchnotfound.png";
         _titlecenter = "Not available in Lok Thien Western.";
         _productList = null;
         setState(() {});
         return;
-      } 
-      else if(response.body == "nullnodata"){
+      } else if (response.body == "nullnodata") {
+        _imagecenter = "assets/images/search.png";
         _titlecenter = "Search by Product Name.";
         _productList = null;
         setState(() {});
         return;
-      }
-      else {
+      } else {
         var jsondata = json.decode(response.body);
         _productList = jsondata["products"];
         setState(() {});

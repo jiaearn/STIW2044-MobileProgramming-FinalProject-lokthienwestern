@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:smooth_star_rating/smooth_star_rating.dart';
 
-class TitlePriceRating extends StatelessWidget {
+class Details extends StatelessWidget {
   final double price;
   final rating;
   final name;
   final RatingChangeCallback onRatingChanged;
-  const TitlePriceRating({
+  const Details({
     Key key,
     this.price,
     this.rating,
@@ -31,6 +31,7 @@ class TitlePriceRating extends StatelessWidget {
                 Row(
                   children: <Widget>[
                     SmoothStarRating(
+                      isReadOnly: true,
                       borderColor: Colors.black,
                       rating: double.parse(rating),
                       color: Colors.black,
